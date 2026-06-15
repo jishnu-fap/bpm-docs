@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BPM Docs</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold-10: #3d2c00; --gold-9: #5c4200; --gold-8: #7a5800;
+    --gold-7: #9a7000; --gold-6: #c9a227; --gold-5: #d4b050;
+    --gold-4: #dfbf7a; --gold-3: #eacfa0; --gold-2: #f3e6c8; --gold-1: #fdf8ee;
+    --bg:             #f8f6f1;
+    --surface:        #ffffff;
+    --surface-raised: #f3f0e8;
+    --border:         #e6e2d4;
+    --border-strong:  #c8c4b4;
+    --text-primary:   #1a1816;
+    --text-secondary: #5a5650;
+    --text-disabled:  #b8b4a8;
+    --sidebar:        #fffefb;
+    --sidebar-border: #e8e0cc;
+    --shadow-sm: 0 1px 3px 0 rgb(26 24 22 / .07), 0 1px 2px -1px rgb(26 24 22 / .05);
+    --shadow-md: 0 4px 12px -2px rgb(26 24 22 / .09), 0 2px 6px -3px rgb(26 24 22 / .06);
+    --shadow-lg: 0 10px 28px -4px rgb(26 24 22 / .12), 0 4px 10px -4px rgb(26 24 22 / .08);
+  }
+
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: var(--sidebar);
+    border-bottom: 1px solid var(--sidebar-border);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .topbar-logo {
+    width: 28px; height: 28px;
+    background: var(--gold-6);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    color: var(--text-primary);
+    box-shadow: 0 2px 6px rgb(201 162 39 / .3);
+  }
+  .topbar-name {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em;
+  }
+  .topbar-name span { color: var(--gold-8); }
+  .topbar-tag {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-disabled);
+  }
+
+  /* ── Hero ── */
+  .hero {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 72px 24px 56px;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    display: inline-block;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold-8);
+    background: var(--gold-1); border: 1px solid var(--gold-3);
+    border-radius: 20px; padding: 3px 12px;
+    margin-bottom: 18px;
+  }
+  .hero-title {
+    font-size: 38px; font-weight: 700; color: var(--text-primary);
+    line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 14px;
+  }
+  .hero-title span { color: var(--gold-7); }
+  .hero-sub {
+    font-size: 15px; color: var(--text-secondary); line-height: 1.7; max-width: 520px; margin: 0 auto;
+  }
+  .hero-divider {
+    width: 48px; height: 3px; background: var(--gold-6);
+    border-radius: 2px; margin: 24px auto 0;
+  }
+
+  /* ── Guides grid ── */
+  .guides-section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-disabled); margin-bottom: 20px;
+  }
+  .guides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  /* ── Guide card ── */
+  .guide-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  }
+  .guide-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--gold-4);
+    transform: translateY(-2px);
+  }
+
+  .card-stripe {
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold-7) 0%, var(--gold-5) 50%, var(--gold-7) 100%);
+  }
+
+  .card-body {
+    padding: 20px 20px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-icon {
+    width: 40px; height: 40px;
+    background: var(--gold-1); border: 1px solid var(--gold-3);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 14px;
+  }
+
+  .card-title {
+    font-size: 15px; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 6px; letter-spacing: -0.01em;
+  }
+
+  .card-desc {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.6; flex: 1;
+  }
+
+  .card-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-meta {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-steps {
+    font-size: 11px; font-weight: 600; color: var(--text-disabled);
+  }
+  .card-cta {
+    font-size: 12px; font-weight: 600; color: var(--gold-8);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .card-cta::after { content: '→'; }
+
+  /* ── Placeholder cards (coming soon) ── */
+  .guide-card.soon {
+    opacity: 0.6; pointer-events: none;
+  }
+  .soon-pill {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    background: var(--surface-raised); border: 1px solid var(--border);
+    color: var(--text-disabled); border-radius: 4px; padding: 1px 7px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 32px;
+    text-align: center;
+    font-size: 12px; color: var(--text-disabled);
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <a class="topbar-brand" href="index.html">
+    <div class="topbar-logo">B</div>
+    <div>
+      <div class="topbar-name">BPM <span>Docs</span></div>
+    </div>
+  </a>
+  <span class="topbar-tag">Internal reference</span>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <span class="hero-eyebrow">Platform guides</span>
+  <h1 class="hero-title">How the <span>BPM platform</span> works</h1>
+  <p class="hero-sub">
+    Step-by-step visual guides for every major flow in the BPM system —
+    for users, admins, and anyone onboarding to the platform.
+  </p>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- Guides -->
+<section class="guides-section">
+  <p class="section-label">All guides</p>
+  <div class="guides-grid">
+
+    <!-- Feedback guide -->
+    <a class="guide-card" href="guides/feedback.html">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-icon">💬</div>
+        <div class="card-title">Feedback Flow</div>
+        <div class="card-desc">
+          How users submit bug reports, change requests, and suggestions —
+          and how admins review, track, and resolve them.
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta">
+          <span class="card-steps">7 steps</span>
+        </div>
+        <span class="card-cta">View guide</span>
+      </div>
+    </a>
+
+    <!-- Equipment guide -->
+    <a class="guide-card" href="guides/equipment.html">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-icon">🔧</div>
+        <div class="card-title">Equipment Management</div>
+        <div class="card-desc">
+          Creating and classifying stock records, tracking serial numbers by status, linking equipment to projects, and deactivating records.
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta">
+          <span class="card-steps">7 steps</span>
+        </div>
+        <span class="card-cta">View guide</span>
+      </div>
+    </a>
+
+    <!-- Projects guide -->
+    <a class="guide-card" href="guides/projects.html">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-icon">📁</div>
+        <div class="card-title">Project Lifecycle</div>
+        <div class="card-desc">
+          Creating projects with contract details, assigning equipment and checklists, submitting status changes, admin approval, and project closure.
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta">
+          <span class="card-steps">8 steps</span>
+        </div>
+        <span class="card-cta">View guide</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<footer class="footer">
+  BPM Platform — Internal documentation
+</footer>
+
+</body>
+</html>

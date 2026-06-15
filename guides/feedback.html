@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BPM Feedback Flow</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Token mirror ── */
+  :root {
+    --gold-10: #3d2c00; --gold-9: #5c4200; --gold-8: #7a5800;
+    --gold-7: #9a7000; --gold-6: #c9a227; --gold-5: #d4b050;
+    --gold-4: #dfbf7a; --gold-3: #eacfa0; --gold-2: #f3e6c8; --gold-1: #fdf8ee;
+    --bg:      #f8f6f1;
+    --surface: #ffffff;
+    --surface-raised: #f3f0e8;
+    --border:  #e6e2d4;
+    --border-strong: #c8c4b4;
+    --text-primary:   #1a1816;
+    --text-secondary: #5a5650;
+    --text-disabled:  #b8b4a8;
+    --sidebar: #fffefb;
+    --sidebar-border: #e8e0cc;
+    --success: #009883; --success-bg: #e6f6f4; --success-border: #b0e4dd;
+    --warning: #d4b106; --warning-bg: #feffe6; --warning-border: #fffb8f;
+    --danger:  #f5222d; --danger-bg:  #fff1f0; --danger-border:  #ffa39e;
+    --info:    #4096ff; --info-bg:    #e6f4ff; --info-border:    #91caff;
+    --shadow-sm: 0 1px 3px 0 rgb(26 24 22 / .07), 0 1px 2px -1px rgb(26 24 22 / .05);
+    --shadow-md: 0 4px 12px -2px rgb(26 24 22 / .09), 0 2px 6px -3px rgb(26 24 22 / .06);
+  }
+
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 52px 24px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .page-eyebrow {
+    text-align: center;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold-8); margin-bottom: 8px;
+  }
+  .page-heading {
+    text-align: center;
+    font-size: 30px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;
+  }
+  .page-sub {
+    text-align: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 64px;
+  }
+  .gold-line {
+    display: block; width: 40px; height: 3px;
+    background: var(--gold-6); border-radius: 2px;
+    margin: 12px auto 0;
+  }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    max-width: 840px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 23px; top: 28px; bottom: 28px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--gold-6) 0%, var(--gold-4) 60%, var(--success) 100%);
+    opacity: 0.5;
+  }
+
+  /* ── Step ── */
+  .step {
+    display: flex;
+    gap: 28px;
+    padding: 0 0 36px;
+    position: relative;
+  }
+
+  .step-dot-col {
+    flex-shrink: 0;
+    width: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-num {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700;
+    border: 2px solid;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+  }
+  .step-num.gold  { border-color: var(--gold-6); color: var(--gold-8); }
+  .step-num.green { border-color: var(--success); color: var(--success); }
+  .step-num.amber { border-color: #d4b106; color: #876800; }
+
+  .step-body { flex: 1; padding-top: 10px; }
+
+  .step-actor {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .step-actor.user   { color: var(--gold-8); }
+  .step-actor.system { color: var(--success); }
+  .step-actor.admin  { color: #876800; }
+
+  .step-title {
+    font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;
+  }
+  .step-desc {
+    font-size: 13.5px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 14px;
+  }
+
+  .opt-pill {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    color: var(--gold-8); border: 1px solid var(--gold-5);
+    background: var(--gold-1); border-radius: 4px;
+    padding: 1px 7px; margin-left: 8px; vertical-align: middle;
+  }
+
+  /* ── Mock panels ── */
+  .mock {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 12px;
+    max-width: 320px;
+    box-shadow: var(--shadow-md);
+  }
+  .mock-bar {
+    background: var(--surface-raised);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .mock-bar-title { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .mock-bar-x {
+    width: 18px; height: 18px; border-radius: 4px;
+    background: var(--border); display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary); font-size: 10px; cursor: default;
+  }
+  .mock-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .mock-label { font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+
+  .mock-element-box {
+    border: 1px solid color-mix(in srgb, var(--gold-6) 35%, transparent);
+    background: var(--gold-1);
+    border-radius: 7px; padding: 7px 10px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+  }
+  .mock-element-tag  { font-family: monospace; font-size: 11px; color: var(--gold-8); }
+  .mock-element-text { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .mock-element-sel  { font-family: monospace; font-size: 10px; color: var(--text-disabled); margin-top: 2px; }
+
+  .mock-pick-dashed {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 7px; padding: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: var(--text-secondary); cursor: default;
+    font-size: 11px; font-weight: 500;
+  }
+
+  .mock-type-row { display: flex; gap: 6px; }
+  .mock-type-btn {
+    flex: 1; border-radius: 6px; border: 1px solid var(--border);
+    padding: 5px 4px; text-align: center;
+    font-size: 10px; font-weight: 600; color: var(--text-secondary); cursor: default;
+    background: var(--surface);
+  }
+  .mock-type-btn.active {
+    border-color: var(--gold-6);
+    background: var(--gold-1);
+    color: var(--gold-8);
+  }
+
+  .mock-textarea {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 7px; padding: 8px 10px;
+    color: var(--text-secondary); font-size: 11.5px; line-height: 1.5;
+    resize: none; width: 100%; font-family: inherit;
+  }
+
+  .mock-btn {
+    background: var(--gold-6); color: var(--text-primary);
+    border-radius: 7px; padding: 7px 12px;
+    font-size: 12px; font-weight: 700; border: none; cursor: default;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    box-shadow: 0 1px 4px rgb(201 162 39 / .3);
+  }
+
+  /* success panel */
+  .mock-success {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px; padding: 28px 16px;
+  }
+  .mock-success-icon { font-size: 30px; }
+  .mock-success-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .mock-success-sub   { font-size: 11px; color: var(--text-secondary); text-align: center; }
+
+  /* FAB */
+  .mock-fab {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--gold-6); color: var(--text-primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; box-shadow: 0 4px 16px rgb(201 162 39 / .4);
+    cursor: default;
+  }
+
+  /* picking banner */
+  .mock-pick-banner {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--gold-6); background: var(--gold-1);
+    border-radius: 12px; padding: 10px 14px; max-width: 260px;
+  }
+  .mock-pick-banner-icon { font-size: 16px; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .mock-pick-banner-text { font-size: 11px; font-weight: 600; color: var(--text-primary); }
+  .mock-pick-banner-sub  { font-size: 10px; color: var(--text-secondary); margin-top: 1px; }
+
+  /* page highlight mockup */
+  .mock-page {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 14px 26px;
+    max-width: 380px; position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+  .mock-page-row { display: flex; gap: 10px; margin-bottom: 8px; }
+  .mock-skeleton { background: var(--surface-raised); border-radius: 4px; height: 10px; }
+  .mock-highlighted {
+    outline: 2.5px solid var(--gold-6); outline-offset: 3px;
+    border-radius: 6px; background: var(--gold-1);
+    padding: 6px 10px; font-size: 12px; color: var(--gold-8);
+    display: inline-block; font-weight: 600;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold-6) 12%, transparent);
+  }
+  .mock-pick-tip {
+    position: absolute; bottom: -13px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px; color: var(--gold-8); font-weight: 600;
+    white-space: nowrap; background: var(--gold-1);
+    padding: 2px 8px; border-radius: 4px;
+    border: 1px solid var(--gold-5);
+  }
+
+  /* admin list */
+  .mock-list { display: flex; flex-direction: column; gap: 6px; }
+  .mock-list-row {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .mock-list-row.active { border-color: var(--gold-5); background: var(--gold-1); }
+  .mock-list-desc { flex: 1; font-size: 12px; color: var(--text-secondary); }
+  .mock-list-meta { font-size: 10px; color: var(--text-disabled); }
+
+  /* badges */
+  .badge { border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .badge-bug  { background: var(--danger-bg);  color: #a8071a; border: 1px solid var(--danger-border); }
+  .badge-cr   { background: var(--warning-bg); color: #614700; border: 1px solid var(--warning-border); }
+  .badge-sug  { background: var(--info-bg);    color: #003eb3; border: 1px solid var(--info-border); }
+  .badge-open { background: var(--surface-raised); color: var(--text-secondary); border: 1px solid var(--border); }
+  .badge-prog { background: var(--warning-bg); color: #614700; border: 1px solid var(--warning-border); }
+  .badge-done { background: var(--success-bg); color: #004c41; border: 1px solid var(--success-border); }
+
+  /* admin detail */
+  .mock-detail {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    max-width: 420px; box-shadow: var(--shadow-md);
+  }
+  .mock-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mock-detail-label { font-size: 10px; color: var(--text-secondary); font-weight: 600; margin-bottom: 2px; }
+  .mock-detail-val   { font-size: 12px; color: var(--text-primary); }
+  .mock-detail-sub   { font-size: 10px; color: var(--text-disabled); }
+  .mock-detail-link  { font-size: 11px; color: #0958d9; }
+  .mock-detail-code  {
+    font-family: monospace; font-size: 10px; color: var(--gold-8);
+    background: var(--gold-1); border: 1px solid var(--gold-3);
+    border-radius: 6px; padding: 6px 8px;
+  }
+  .mock-advance-btn {
+    align-self: flex-end;
+    border: 1px solid var(--border-strong); border-radius: 6px;
+    padding: 5px 10px; font-size: 11px; font-weight: 600;
+    color: var(--text-primary); cursor: default; background: var(--surface-raised);
+  }
+
+  /* status flow */
+  .status-flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sp {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; border: 1.5px solid;
+  }
+  .sp-open { background: var(--surface-raised); color: var(--text-secondary); border-color: var(--border-strong); }
+  .sp-prog { background: var(--warning-bg); color: #614700; border-color: var(--warning); }
+  .sp-done { background: var(--success-bg); color: #004c41; border-color: var(--success); }
+  .sp-arr  { color: var(--border-strong); font-size: 18px; }
+
+  /* tip box */
+  .tip-box {
+    background: var(--gold-1); border: 1px solid var(--gold-3);
+    border-radius: 8px; padding: 8px 12px;
+    font-size: 12px; color: var(--gold-8); max-width: 340px;
+  }
+
+  /* phase divider */
+  .phase-div {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0 24px 76px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.12em; color: #876800;
+  }
+  .phase-div-line { flex: 1; height: 1px; background: var(--gold-3); }
+
+  /* footer legend */
+  .legend {
+    max-width: 840px; margin: 56px auto 0;
+    display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--text-secondary);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<div style="padding:14px 24px;border-bottom:1px solid var(--border);background:var(--sidebar);position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px;">
+  <a href="../index.html" style="font-size:12px;font-weight:600;color:var(--gold-8);text-decoration:none;display:flex;align-items:center;gap:5px;">
+    ← All guides
+  </a>
+  <span style="color:var(--border-strong);font-size:12px;">|</span>
+  <span style="font-size:12px;color:var(--text-secondary);font-weight:500;">Feedback Flow</span>
+</div>
+
+<p class="page-eyebrow" style="margin-top:52px;">BPM Platform</p>
+<h1 class="page-heading">Feedback Flow</h1>
+<span class="gold-line"></span>
+<p class="page-sub" style="margin-top:14px;">End-to-end journey — from spotting an issue to marking it resolved</p>
+
+<div class="timeline">
+
+  <!-- ══ STEP 1 ══ -->
+  <div class="step">
+    <div class="step-dot-col"><div class="step-num gold">1</div></div>
+    <div class="step-body">
+      <div class="step-actor user">User</div>
+      <div class="step-title">Click the feedback button</div>
+      <div class="step-desc">
+        On every page in BPM a floating button sits in the <strong>bottom-right corner</strong>.
+        Any logged-in user can click it at any time — no navigation required.
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+        <div class="mock-fab">💬</div>
+        <div class="tip-box">The button stays visible no matter which page you're on.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2 ══ -->
+  <div class="step">
+    <div class="step-dot-col"><div class="step-num gold">2</div></div>
+    <div class="step-body">
+      <div class="step-actor user">User <span class="opt-pill">Optional</span></div>
+      <div class="step-title">Pick an element on the page</div>
+      <div class="step-desc">
+        The panel opens. If the feedback is about a <em>specific part</em> of the screen, click
+        <strong>"Click to pick an element"</strong>. A crosshair cursor appears — hover to highlight
+        any element, click to attach it to the report.
+        Press <kbd style="background:var(--surface-raised);border:1px solid var(--border-strong);border-radius:4px;padding:1px 6px;font-size:11px;">Esc</kbd> to skip.
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
+        <div>
+          <div class="mock-label" style="margin-bottom:6px;">Picking mode banner:</div>
+          <div class="mock-pick-banner">
+            <div class="mock-pick-banner-icon">⊕</div>
+            <div>
+              <div class="mock-pick-banner-text">Click any element</div>
+              <div class="mock-pick-banner-sub">Press Esc to cancel</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="mock-label" style="margin-bottom:6px;">Highlighted element:</div>
+          <div class="mock-page">
+            <div class="mock-page-row">
+              <div class="mock-skeleton" style="width:55px;"></div>
+              <div class="mock-skeleton" style="width:110px;"></div>
+            </div>
+            <div class="mock-page-row">
+              <div class="mock-skeleton" style="width:80px;"></div>
+              <div class="mock-skeleton" style="width:70px;"></div>
+            </div>
+            <div style="margin-top:10px;">
+              <span class="mock-highlighted">Save Changes</span>
+            </div>
+            <div class="mock-pick-tip">← you clicked this button</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3 ══ -->
+  <div class="step">
+    <div class="step-dot-col"><div class="step-num gold">3</div></div>
+    <div class="step-body">
+      <div class="step-actor user">User</div>
+      <div class="step-title">Fill in the form &amp; submit</div>
+      <div class="step-desc">
+        Back in the panel, the pinned element is shown (or skipped). Choose a <strong>type</strong>,
+        write a <strong>description</strong>, then hit Submit.
+        The current page URL is captured automatically.
+      </div>
+      <div class="mock">
+        <div class="mock-bar">
+          <span class="mock-bar-title">Submit Feedback</span>
+          <div class="mock-bar-x">✕</div>
+        </div>
+        <div class="mock-body">
+          <div>
+            <div class="mock-label">Pointing to</div>
+            <div class="mock-element-box">
+              <div>
+                <div class="mock-element-tag">&lt;button&gt;</div>
+                <div class="mock-element-text">"Save Changes"</div>
+                <div class="mock-element-sel">form &gt; div:nth-of-type(3) &gt; button</div>
+              </div>
+              <span style="font-size:11px;color:var(--text-disabled);cursor:default;">↺</span>
+            </div>
+          </div>
+          <div>
+            <div class="mock-label">Type</div>
+            <div class="mock-type-row">
+              <div class="mock-type-btn active">Change Request</div>
+              <div class="mock-type-btn">Bug</div>
+              <div class="mock-type-btn">Suggestion</div>
+            </div>
+          </div>
+          <div>
+            <div class="mock-label">Description <span style="color:var(--danger);">*</span></div>
+            <textarea class="mock-textarea" rows="3" readonly>The "Save Changes" button does not respond after editing the project name — nothing happens when clicked.</textarea>
+          </div>
+          <button class="mock-btn">➤ Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 4 — System ══ -->
+  <div class="step">
+    <div class="step-dot-col"><div class="step-num green">4</div></div>
+    <div class="step-body">
+      <div class="step-actor system">System</div>
+      <div class="step-title">Confirmed — panel closes automatically</div>
+      <div class="step-desc">
+        A success state appears briefly, then the panel closes after 2.5 seconds.
+        The report is stored with status <strong>Open</strong> and linked to the user's account.
+      </div>
+      <div class="mock" style="max-width:270px;">
+        <div class="mock-bar">
+          <span class="mock-bar-title">Submit Feedback</span>
+          <div class="mock-bar-x">✕</div>
+        </div>
+        <div class="mock-success">
+          <div class="mock-success-icon">✅</div>
+          <div class="mock-success-title">Feedback submitted!</div>
+          <div class="mock-success-sub">Thank you — we'll review it shortly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHASE DIVIDER ══ -->
+  <div class="phase-div">
+    <div class="phase-div-line"></div>
+    Admin picks it up
+    <div class="phase-div-line"></div>
+  </div>
+
+  <!-- ══ STEP 5 ══ -->
+  <div class="step">
+    <div class="step-dot-col"><div class="step-num amber">5</div></div>
+    <div class="step-body">
+      <div class="step-actor admin">Admin</div>
+      <div class="step-title">Open the Feedback page</div>
+      <div class="step-desc">
+        Admin navigates to <strong>Feedback</strong> in the sidebar. All submissions appear
+        newest-first. Filterable by <strong>type</strong> and <strong>status</strong>.
+      </div>
+      <div class="mock" style="max-width:460px;">
+        <div class="mock-bar">
+          <span class="mock-bar-title">Feedback</span>
+          <div style="display:flex;gap:6px;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--text-secondary);">All types ▾</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--text-secondary);">All statuses ▾</div>
+          </div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-list">
+            <div class="mock-list-row active">
+              <span class="badge badge-cr">Change Request</span>
+              <span class="mock-list-desc">The "Save Changes" button does not respond after editing…</span>
+              <span class="badge badge-open">open</span>
+              <span class="mock-list-meta">Jun 15</span>
+            </div>
+            <div class="mock-list-row">
+              <span class="badge badge-bug">Bug</span>
+              <span class="mock-list-desc">Login page throws 500 when SSO token expires…</span>
+              <span class="badge badge-prog">in progress</span>
+              <span class="mock-list-meta">Jun 14</span>
+            </div>
+            <div class="mock-list-row">
+              <span class="badge badge-sug">Suggestion</span>
+              <span class="mock-list-desc">Add export to Excel on the equipment list…</span>
+              <span class="badge badge-done">resolved</span>
+              <span class="mock-list-meta">Jun 12</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 6 ══ -->
+  <div class="step">
+    <div class="step-dot-col"><div class="step-num amber">6</div></div>
+    <div class="step-body">
+      <div class="step-actor admin">Admin</div>
+      <div class="step-title">Expand &amp; investigate</div>
+      <div class="step-desc">
+        Clicking a row expands it — submitter name &amp; email, exact page URL, and the pinned
+        element (tag, text, CSS selector). <strong>"Preview on page"</strong> navigates there
+        and highlights it live so the admin sees exactly what was flagged.
+      </div>
+      <div class="mock-detail">
+        <div class="mock-detail-grid">
+          <div>
+            <div class="mock-detail-label">Submitted by</div>
+            <div class="mock-detail-val">Sarah Lim</div>
+            <div class="mock-detail-sub">sarah.lim@company.com</div>
+          </div>
+          <div>
+            <div class="mock-detail-label">Page</div>
+            <div class="mock-detail-link">/projects/proj-001/edit ↗</div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div class="mock-detail-label">Pinned element</div>
+            <div style="font-size:10px;color:#0958d9;cursor:default;">👁 Preview on page</div>
+          </div>
+          <div class="mock-detail-code">
+            &lt;button&gt;<br>
+            "Save Changes"<br>
+            form &gt; div:nth-of-type(3) &gt; button
+          </div>
+        </div>
+        <div>
+          <div class="mock-detail-label">Description</div>
+          <div style="font-size:12px;color:var(--text-primary);line-height:1.5;">
+            The "Save Changes" button does not respond after editing the project name — nothing happens when clicked.
+          </div>
+        </div>
+        <button class="mock-advance-btn">Mark In Progress</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 7 ══ -->
+  <div class="step">
+    <div class="step-dot-col"><div class="step-num green">7</div></div>
+    <div class="step-body">
+      <div class="step-actor admin">Admin → Resolution</div>
+      <div class="step-title">Advance status to resolved</div>
+      <div class="step-desc">
+        One action button at the bottom of the expanded row advances the status by one stage.
+        There is no going backwards.
+      </div>
+      <div class="status-flow">
+        <div class="sp sp-open">Open</div>
+        <div class="sp-arr">→</div>
+        <div style="text-align:center;">
+          <div class="sp sp-prog">In Progress</div>
+          <div style="font-size:10px;color:var(--text-disabled);margin-top:3px;">click "Mark In Progress"</div>
+        </div>
+        <div class="sp-arr">→</div>
+        <div style="text-align:center;">
+          <div class="sp sp-done">Resolved</div>
+          <div style="font-size:10px;color:var(--text-disabled);margin-top:3px;">click "Mark Resolved"</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;" class="tip-box">
+        Once <strong>Resolved</strong>, no further action is possible — the button disappears.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Footer legend ── -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:var(--gold-6);"></div>
+    User action
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#d4b106;"></div>
+    Admin action
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:var(--success);"></div>
+    System / automatic
+  </div>
+  <div class="legend-item">
+    <span class="opt-pill" style="margin-left:0;">Optional</span>
+    Step can be skipped
+  </div>
+</div>
+
+</body>
+</html>
