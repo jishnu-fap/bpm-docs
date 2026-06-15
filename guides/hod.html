@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BPM — Head of Department (HOD)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold-8:#7a5800;--gold-6:#c9a227;--gold-5:#d4b050;--gold-3:#eacfa0;--gold-1:#fdf8ee;--bg:#f8f6f1;--surface:#fff;--surface-raised:#f3f0e8;--border:#e6e2d4;--border-strong:#c8c4b4;--text-primary:#1a1816;--text-secondary:#5a5650;--text-disabled:#b8b4a8;--sidebar:#fffefb;--sidebar-border:#e8e0cc;--success:#009883;--success-bg:#e6f6f4;--success-border:#b0e4dd;--danger:#f5222d;--danger-bg:#fff1f0;--danger-border:#ffa39e;--shadow-sm:0 1px 3px 0 rgb(26 24 22/.07),0 1px 2px -1px rgb(26 24 22/.05);--shadow-md:0 4px 12px -2px rgb(26 24 22/.09),0 2px 6px -3px rgb(26 24 22/.06)}
+body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;padding:0 0 80px;-webkit-font-smoothing:antialiased}
+.topbar{background:var(--sidebar);border-bottom:1px solid var(--sidebar-border);padding:0 24px;height:52px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.topbar a{font-size:12px;font-weight:600;color:var(--gold-8);text-decoration:none}.topbar-sep{color:var(--border-strong)}.topbar-cur{font-size:12px;color:var(--text-secondary);font-weight:500}
+.hero{max-width:780px;margin:0 auto;padding:52px 24px 44px;text-align:center}
+.eyebrow{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-8);background:var(--gold-1);border:1px solid var(--gold-3);border-radius:20px;padding:3px 12px;margin-bottom:12px}
+.hero h1{font-size:28px;font-weight:700;color:var(--text-primary);margin-bottom:8px;letter-spacing:-.02em}
+.hero p{font-size:14px;color:var(--text-secondary);line-height:1.7;max-width:500px;margin:0 auto}
+.gold-line{width:40px;height:3px;background:var(--gold-6);border-radius:2px;margin:14px auto 0}
+.timeline{position:relative;max-width:820px;margin:0 auto;padding:0 24px;display:flex;flex-direction:column}
+.timeline::before{content:'';position:absolute;left:46px;top:24px;bottom:24px;width:2px;background:linear-gradient(to bottom,var(--gold-6),var(--gold-5));opacity:.4}
+.step{display:flex;gap:26px;padding:0 0 36px;position:relative}
+.dot-col{flex-shrink:0;width:46px;display:flex;align-items:flex-start;justify-content:center;position:relative;z-index:1;padding-top:10px}
+.dot{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid;background:var(--surface);box-shadow:var(--shadow-sm)}
+.dot.gold{border-color:var(--gold-6);color:var(--gold-8)}.dot.green{border-color:var(--success);color:var(--success)}.dot.red{border-color:var(--danger);color:var(--danger)}
+.body{flex:1;padding-top:8px}
+.actor{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;color:var(--gold-8)}
+.step-title{font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:5px}
+.step-desc{font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:12px}
+.tip{background:var(--gold-1);border:1px solid var(--gold-3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--gold-8);max-width:440px}
+.mock{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow-md);font-size:12px}
+.mock-bar{background:var(--surface-raised);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.mock-bar-title{font-size:12px;font-weight:600;color:var(--text-primary)}
+.mock-body{padding:12px;display:flex;flex-direction:column;gap:10px}
+.mock-btn{background:var(--gold-6);color:var(--text-primary);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;border:none;cursor:default;display:inline-flex;align-items:center;gap:5px;box-shadow:0 1px 4px rgb(201 162 39/.3)}
+.mock-btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text-secondary);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:default;display:inline-flex;align-items:center;gap:5px}
+.mock-btn-danger{background:var(--danger);color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:default;display:inline-flex;align-items:center;gap:5px}
+.mock-label{font-size:10px;font-weight:600;color:var(--text-secondary);margin-bottom:3px}
+.mock-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text-primary);font-size:11.5px;width:100%;font-family:inherit}
+.zone-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.zone-table th{padding:7px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);border-bottom:1px solid var(--border);background:var(--surface-raised)}
+.zone-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.zone-table tr:last-child td{border-bottom:none}
+.zone-name{font-weight:700;color:var(--text-primary);font-size:12px}
+.zone-expand{color:var(--text-disabled);margin-right:4px;font-size:10px}
+.hod-avatar{width:26px;height:26px;background:var(--gold-3);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold-8);vertical-align:middle;margin-right:5px}
+.hod-name{font-size:11.5px;font-weight:600;color:var(--text-primary);display:inline}
+.hod-email{font-size:10px;color:var(--text-secondary);display:block;margin-top:1px}
+.none-tag{font-size:10px;color:var(--text-disabled);font-style:italic}
+.action-btns{display:flex;gap:5px;flex-wrap:wrap}
+.badge{border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap}
+.b-active{background:var(--success-bg);color:#004c41;border:1px solid var(--success-border)}
+.b-ended{background:var(--surface-raised);color:var(--text-disabled);border:1px solid var(--border)}
+.hist-table{width:100%;border-collapse:collapse;font-size:11px}
+.hist-table th{padding:5px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);border-bottom:1px solid var(--border);background:var(--surface-raised)}
+.hist-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text-secondary)}
+.hist-table tr:last-child td{border-bottom:none}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="../index.html">← All guides</a><span class="topbar-sep">|</span><span class="topbar-cur">Head of Department (HOD)</span></div>
+
+<section class="hero">
+  <span class="eyebrow">Administration</span>
+  <h1>Head of Department (HOD)</h1>
+  <p>How to assign a Head of Department to each zone or department, end an existing assignment, and view the history of all past HODs per zone.</p>
+  <div class="gold-line"></div>
+</section>
+
+<div class="timeline">
+
+  <div class="step">
+    <div class="dot-col"><div class="dot gold">1</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">View the HOD page — zones and current assignments</div>
+      <div class="step-desc">Navigate to <strong>HOD</strong> in the sidebar. All zones and departments are listed in a collapsible tree. Each row shows the currently active HOD — their avatar, name, and email. Rows with no assignment show <em>None assigned</em>. Expand a zone to see its sub-departments.</div>
+      <div class="mock" style="max-width:600px;">
+        <div class="mock-bar"><span class="mock-bar-title">Head of Department</span></div>
+        <table class="zone-table">
+          <thead><tr><th>Zone / Department</th><th>Current HOD</th><th>Since</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="zone-expand">▼</span><span class="zone-name">East Zone</span></td>
+              <td><span class="hod-avatar">SL</span><span class="hod-name">Sarah Lim</span><span class="hod-email">sarah.lim@company.com</span></td>
+              <td style="color:var(--text-secondary);">Jan 2025</td>
+              <td><div class="action-btns"><div class="mock-btn-ghost" style="font-size:10px;">History</div><div class="mock-btn-danger" style="font-size:10px;">End</div></div></td>
+            </tr>
+            <tr style="background:var(--surface-raised);">
+              <td style="padding-left:28px;font-size:11.5px;color:var(--text-secondary);">Tampines</td>
+              <td><span class="none-tag">None assigned</span></td>
+              <td>—</td>
+              <td><div class="mock-btn" style="font-size:10px;">Assign</div></td>
+            </tr>
+            <tr>
+              <td><span class="zone-expand">▶</span><span class="zone-name">West Zone</span></td>
+              <td><span class="hod-avatar">JT</span><span class="hod-name">John Tan</span><span class="hod-email">john.tan@company.com</span></td>
+              <td style="color:var(--text-secondary);">Mar 2025</td>
+              <td><div class="action-btns"><div class="mock-btn-ghost" style="font-size:10px;">History</div><div class="mock-btn-danger" style="font-size:10px;">End</div></div></td>
+            </tr>
+            <tr>
+              <td><span class="zone-expand">▶</span><span class="zone-name">North Zone</span></td>
+              <td><span class="none-tag">None assigned</span></td>
+              <td>—</td>
+              <td><div class="mock-btn" style="font-size:10px;">Assign</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot-col"><div class="dot gold">2</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">Assign an HOD to a zone</div>
+      <div class="step-desc">Click <strong>Assign</strong> on any row that has no current HOD. The Assign HOD modal opens — select a user from the system and specify the start date of their appointment. The assignment takes effect immediately and the row updates to show the new HOD's details.</div>
+      <div class="mock" style="max-width:340px;">
+        <div class="mock-bar"><span class="mock-bar-title">Assign HOD — North Zone</span></div>
+        <div class="mock-body">
+          <div><div class="mock-label">Select User *</div><div class="mock-input" style="color:var(--gold-8);">Mary Ng (Engineer) ▾</div></div>
+          <div><div class="mock-label">Start Date *</div><div class="mock-input">2025-07-01</div></div>
+          <div style="display:flex;justify-content:flex-end;gap:6px;">
+            <div class="mock-btn-ghost">Cancel</div>
+            <div class="mock-btn">Confirm Assignment</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot-col"><div class="dot red">3</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">End an HOD assignment</div>
+      <div class="step-desc">Click <strong>End</strong> on a zone that has an active HOD. The End HOD modal asks for an end date and an optional reason (e.g. resignation, rotation, restructure). Once confirmed, the zone shows as <em>None assigned</em> and an <strong>Assign</strong> button reappears. The ended record moves to history.</div>
+      <div class="mock" style="max-width:340px;">
+        <div class="mock-bar"><span class="mock-bar-title">End HOD — East Zone</span></div>
+        <div class="mock-body">
+          <div style="font-size:12px;color:var(--text-secondary);">Ending <strong>Sarah Lim's</strong> appointment as HOD of East Zone.</div>
+          <div><div class="mock-label">End Date *</div><div class="mock-input">2025-06-30</div></div>
+          <div><div class="mock-label">Reason (optional)</div><div class="mock-input">Annual rotation — moving to West Zone.</div></div>
+          <div style="display:flex;justify-content:flex-end;gap:6px;">
+            <div class="mock-btn-ghost">Cancel</div>
+            <div class="mock-btn-danger">End Assignment</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot-col"><div class="dot gold">4</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">View HOD history for a zone</div>
+      <div class="step-desc">Click <strong>History</strong> on any zone row (regardless of whether an HOD is currently assigned) to see the full list of past appointments. The history shows who held the position, their start and end dates, the reason for ending, and whether the appointment is still active.</div>
+      <div class="mock" style="max-width:500px;">
+        <div class="mock-bar"><span class="mock-bar-title">HOD History — East Zone</span></div>
+        <table class="hist-table">
+          <thead><tr><th>Name</th><th>Start</th><th>End</th><th>Reason</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:600;color:var(--text-primary);">Sarah Lim</td><td>Jan 2025</td><td>—</td><td>—</td><td><span class="badge b-active">Active</span></td></tr>
+            <tr><td style="font-weight:600;color:var(--text-primary);">David Ong</td><td>Jun 2024</td><td>Dec 2024</td><td>Promotion</td><td><span class="badge b-ended">Ended</span></td></tr>
+            <tr><td style="font-weight:600;color:var(--text-primary);">Wei Ling</td><td>Jan 2023</td><td>May 2024</td><td>Resignation</td><td><span class="badge b-ended">Ended</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot-col"><div class="dot green">5</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">Reassign after ending — completing a rotation</div>
+      <div class="step-desc">After ending an assignment, click <strong>Assign</strong> on the same zone to appoint the next HOD. This is the standard workflow for periodic rotations — end the current HOD's appointment with the rotation date as the end date, then immediately assign the new one with the same date as their start.</div>
+      <div class="tip">Only users with the HOD assign permission can perform these actions. The permission is role-based and configured in the Roles page.</div>
+    </div>
+  </div>
+
+</div>
+</body></html>

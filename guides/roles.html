@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BPM — Roles &amp; Permissions</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold-8:#7a5800;--gold-6:#c9a227;--gold-5:#d4b050;--gold-3:#eacfa0;--gold-1:#fdf8ee;--bg:#f8f6f1;--surface:#fff;--surface-raised:#f3f0e8;--border:#e6e2d4;--border-strong:#c8c4b4;--text-primary:#1a1816;--text-secondary:#5a5650;--text-disabled:#b8b4a8;--sidebar:#fffefb;--sidebar-border:#e8e0cc;--success:#009883;--success-bg:#e6f6f4;--success-border:#b0e4dd;--danger:#f5222d;--danger-bg:#fff1f0;--danger-border:#ffa39e;--info:#4096ff;--info-bg:#e6f4ff;--info-border:#91caff;--shadow-sm:0 1px 3px 0 rgb(26 24 22/.07),0 1px 2px -1px rgb(26 24 22/.05);--shadow-md:0 4px 12px -2px rgb(26 24 22/.09),0 2px 6px -3px rgb(26 24 22/.06)}
+body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;padding:0 0 80px;-webkit-font-smoothing:antialiased}
+.topbar{background:var(--sidebar);border-bottom:1px solid var(--sidebar-border);padding:0 24px;height:52px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.topbar a{font-size:12px;font-weight:600;color:var(--gold-8);text-decoration:none}.topbar-sep{color:var(--border-strong)}.topbar-cur{font-size:12px;color:var(--text-secondary);font-weight:500}
+.hero{max-width:780px;margin:0 auto;padding:52px 24px 44px;text-align:center}
+.eyebrow{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-8);background:var(--gold-1);border:1px solid var(--gold-3);border-radius:20px;padding:3px 12px;margin-bottom:12px}
+.hero h1{font-size:28px;font-weight:700;color:var(--text-primary);margin-bottom:8px;letter-spacing:-.02em}
+.hero p{font-size:14px;color:var(--text-secondary);line-height:1.7;max-width:500px;margin:0 auto}
+.gold-line{width:40px;height:3px;background:var(--gold-6);border-radius:2px;margin:14px auto 0}
+.timeline{position:relative;max-width:820px;margin:0 auto;padding:0 24px;display:flex;flex-direction:column}
+.timeline::before{content:'';position:absolute;left:46px;top:24px;bottom:24px;width:2px;background:linear-gradient(to bottom,var(--gold-6),var(--gold-5));opacity:.4}
+.step{display:flex;gap:26px;padding:0 0 36px;position:relative}
+.dot-col{flex-shrink:0;width:46px;display:flex;align-items:flex-start;justify-content:center;position:relative;z-index:1;padding-top:10px}
+.dot{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid;background:var(--surface);box-shadow:var(--shadow-sm)}
+.dot.gold{border-color:var(--gold-6);color:var(--gold-8)}.dot.green{border-color:var(--success);color:var(--success)}
+.body{flex:1;padding-top:8px}
+.actor{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;color:var(--gold-8)}
+.step-title{font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:5px}
+.step-desc{font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:12px}
+.tip{background:var(--gold-1);border:1px solid var(--gold-3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--gold-8);max-width:440px}
+.mock{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow-md);font-size:12px}
+.mock-bar{background:var(--surface-raised);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.mock-bar-title{font-size:12px;font-weight:600;color:var(--text-primary)}
+.mock-body{padding:12px;display:flex;flex-direction:column;gap:10px}
+.mock-btn{background:var(--gold-6);color:var(--text-primary);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;border:none;cursor:default;display:inline-flex;align-items:center;gap:5px;box-shadow:0 1px 4px rgb(201 162 39/.3)}
+.mock-btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text-secondary);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:600;cursor:default;display:inline-flex;align-items:center;gap:5px}
+.mock-label{font-size:10px;font-weight:600;color:var(--text-secondary);margin-bottom:3px}
+.mock-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text-primary);font-size:11.5px;width:100%;font-family:inherit}
+.role-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px}
+.role-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px}
+.role-card-name{font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:4px}
+.role-card-count{font-size:10px;color:var(--text-disabled);margin-bottom:6px}
+.perm-badges{display:flex;flex-wrap:wrap;gap:4px}
+.pbadge{background:var(--gold-1);border:1px solid var(--gold-3);border-radius:4px;font-size:9px;font-weight:700;padding:2px 5px;color:var(--gold-8)}
+.perm-group{margin-bottom:10px}
+.pg-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary);padding:6px 12px;background:var(--surface-raised);border-bottom:1px solid var(--border)}
+.perm-row{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text-secondary)}
+.perm-row:last-child{border-bottom:none}
+.perm-row.checked{color:var(--text-primary)}
+.checkbox{width:14px;height:14px;border-radius:3px;border:1.5px solid;flex-shrink:0}
+.checkbox.on{border-color:var(--gold-6);background:var(--gold-6)}
+.checkbox.off{border-color:var(--border-strong);background:var(--surface)}
+.check-inner{color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;height:100%}
+.badge{border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap}
+.b-active{background:var(--success-bg);color:#004c41;border:1px solid var(--success-border)}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="../index.html">← All guides</a><span class="topbar-sep">|</span><span class="topbar-cur">Roles &amp; Permissions</span></div>
+
+<section class="hero">
+  <span class="eyebrow">Administration</span>
+  <h1>Roles &amp; Permissions</h1>
+  <p>How roles are structured, how permissions are grouped by domain, and how to configure access for each role in the BPM system.</p>
+  <div class="gold-line"></div>
+</section>
+
+<div class="timeline">
+
+  <div class="step">
+    <div class="dot-col"><div class="dot gold">1</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">View all roles on the Roles page</div>
+      <div class="step-desc">Navigate to <strong>Roles</strong> in the sidebar. Each role appears as a card showing how many permissions are active and which domains are covered. Roles are system-wide — one role can be held by many users.</div>
+      <div class="mock" style="max-width:600px;">
+        <div class="mock-bar"><span class="mock-bar-title">Roles</span><div class="mock-btn">+ New Role</div></div>
+        <div class="role-cards">
+          <div class="role-card">
+            <div class="role-card-name">Admin</div>
+            <div class="role-card-count">42 permissions</div>
+            <div class="perm-badges"><span class="pbadge">Users</span><span class="pbadge">Projects</span><span class="pbadge">Equipment</span><span class="pbadge">Quotations</span><span class="pbadge">Contracts</span></div>
+          </div>
+          <div class="role-card">
+            <div class="role-card-name">Engineer</div>
+            <div class="role-card-count">18 permissions</div>
+            <div class="perm-badges"><span class="pbadge">Projects</span><span class="pbadge">Equipment</span><span class="pbadge">Checklists</span></div>
+          </div>
+          <div class="role-card">
+            <div class="role-card-name">Viewer</div>
+            <div class="role-card-count">8 permissions</div>
+            <div class="perm-badges"><span class="pbadge">Projects</span><span class="pbadge">Equipment</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot-col"><div class="dot gold">2</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">Open the role editor</div>
+      <div class="step-desc">Click <strong>Edit</strong> on any role card. The editor opens showing all permissions grouped by domain — Users, Projects, Equipment, Quotations, Contracts, Checklists, Feedback, and HOD. Toggle individual permissions on or off with the checkboxes.</div>
+      <div class="mock" style="max-width:440px;">
+        <div class="mock-bar"><span class="mock-bar-title">Edit Role — Engineer</span></div>
+        <div>
+          <div class="pg-label">Projects</div>
+          <div class="perm-row checked"><div class="checkbox on"><div class="check-inner">✓</div></div>View projects</div>
+          <div class="perm-row checked"><div class="checkbox on"><div class="check-inner">✓</div></div>Create projects</div>
+          <div class="perm-row"><div class="checkbox off"></div>Delete projects</div>
+          <div class="perm-row checked"><div class="checkbox on"><div class="check-inner">✓</div></div>Submit for approval</div>
+          <div class="pg-label">Equipment</div>
+          <div class="perm-row checked"><div class="checkbox on"><div class="check-inner">✓</div></div>View equipment</div>
+          <div class="perm-row checked"><div class="checkbox on"><div class="check-inner">✓</div></div>Edit equipment</div>
+          <div class="perm-row"><div class="checkbox off"></div>Deactivate equipment</div>
+          <div class="pg-label">Users</div>
+          <div class="perm-row"><div class="checkbox off"></div>View user list</div>
+          <div class="perm-row"><div class="checkbox off"></div>Edit users</div>
+        </div>
+        <div style="padding:10px 12px;display:flex;justify-content:flex-end;gap:6px;border-top:1px solid var(--border);">
+          <div class="mock-btn-ghost">Cancel</div>
+          <div class="mock-btn">Save Role</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot-col"><div class="dot gold">3</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">Create a new role</div>
+      <div class="step-desc">Click <strong>New Role</strong> on the Roles list page. Give the role a name, then use the same permission editor to configure what it can access. Start from a blank set or refer to an existing role for guidance — permissions can be individually toggled.</div>
+      <div class="mock" style="max-width:360px;">
+        <div class="mock-bar"><span class="mock-bar-title">New Role</span></div>
+        <div class="mock-body">
+          <div><div class="mock-label">Role Name *</div><div class="mock-input">Site Supervisor</div></div>
+          <div class="tip" style="max-width:100%;">After saving the role, assign it to users from the Users page.</div>
+          <div style="display:flex;justify-content:flex-end;gap:6px;">
+            <div class="mock-btn-ghost">Cancel</div>
+            <div class="mock-btn">Create &amp; Configure</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot-col"><div class="dot gold">4</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">Assign a role to users</div>
+      <div class="step-desc">Roles are assigned from the <strong>Users</strong> page — either during user creation or by editing an existing user. One user has exactly one role. To give a user the same access as a colleague, use <strong>Clone Permissions</strong> from the user kebab menu.</div>
+      <div class="tip">Changes to a role propagate immediately to all users holding that role — no logout required on their side.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot-col"><div class="dot gold">5</div></div>
+    <div class="body">
+      <div class="actor">Admin</div>
+      <div class="step-title">Understand permission groupings</div>
+      <div class="step-desc">Permissions are grouped by domain so it's easy to grant or revoke access to an entire feature area. The key domains and what they control:</div>
+      <div class="mock" style="max-width:480px;overflow:visible;">
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+          <thead><tr style="background:var(--surface-raised);"><th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);border-bottom:1px solid var(--border);">Domain</th><th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-disabled);border-bottom:1px solid var(--border);">Controls</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 12px;font-weight:600;color:var(--text-primary);">Users</td><td style="padding:7px 12px;color:var(--text-secondary);">View/create/edit/delete users, manage roles</td></tr>
+            <tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 12px;font-weight:600;color:var(--text-primary);">Projects</td><td style="padding:7px 12px;color:var(--text-secondary);">View/create/edit/approve/close projects</td></tr>
+            <tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 12px;font-weight:600;color:var(--text-primary);">Equipment</td><td style="padding:7px 12px;color:var(--text-secondary);">View/edit stock records, manage serial numbers</td></tr>
+            <tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 12px;font-weight:600;color:var(--text-primary);">Quotations</td><td style="padding:7px 12px;color:var(--text-secondary);">Create/approve/reject/convert quotations</td></tr>
+            <tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 12px;font-weight:600;color:var(--text-primary);">Contracts</td><td style="padding:7px 12px;color:var(--text-secondary);">Create/view/terminate contracts</td></tr>
+            <tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 12px;font-weight:600;color:var(--text-primary);">Checklists</td><td style="padding:7px 12px;color:var(--text-secondary);">Create/edit/assign/print checklist templates</td></tr>
+            <tr><td style="padding:7px 12px;font-weight:600;color:var(--text-primary);">HOD</td><td style="padding:7px 12px;color:var(--text-secondary);">Assign/end head-of-department per zone</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body></html>
